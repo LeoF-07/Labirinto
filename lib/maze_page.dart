@@ -16,30 +16,33 @@ class MazePage extends StatefulWidget{
 }
 
 class MazePageState extends State<MazePage>{
-  final mazeWidth = 400.w;
-  final mazeHeight = 400.h;
-
-  int rows = 25;
+  int rows = 43;
   int cols = 25;
+
+  late StreamSubscription<AccelerometerEvent> accelSub;
+  bool falling = true;
+
+  late double mazeWidth;
+  late double mazeHeight;
   late double cellWidth;
   late double cellHeight;
-
   late Maze maze;
   late Ball ball;
 
-  late StreamSubscription<AccelerometerEvent> accelSub;
-
   @override
   void initState() {
+    mazeWidth = (cols * 16).w;
+    mazeHeight = (rows * 16).h;
+
     cellWidth = mazeWidth / cols;
     cellHeight = mazeHeight / rows;
+
     maze = Maze(rows, cols);
     ball = Ball(maze.cx * cellWidth + cellWidth / 2, -40);
+
     _startInitialFall();
     super.initState();
   }
-
-  bool falling = true;
 
   void _startInitialFall() {
     Timer.periodic(const Duration(milliseconds: 16), (timer) {
@@ -106,9 +109,13 @@ class MazePageState extends State<MazePage>{
     accelSub = accelerometerEventStream().listen((AccelerometerEvent event) {
       if (falling) return;
 
-      const double tiltFactorX = 0.12; // sensibilità regolabile
+      /*const double tiltFactorX = 0.12; // sensibilità regolabile
       const double tiltFactorY = 0.12;
-      const tiltFactorYUp = 0.22;
+      const tiltFactorYUp = 0.22;*/
+
+      const double tiltFactorX = 0.09; // sensibilità regolabile
+      const double tiltFactorY = 0.09;
+      const tiltFactorYUp = 0.10;
 
       setState(() {
         // Movimento orizzontale
@@ -250,7 +257,7 @@ class MazePageState extends State<MazePage>{
           child: Center(
             child: CustomPaint(
               painter: MazePainter(maze, ball),
-              size: Size(400.w, 400.h)
+              size: Size(mazeWidth, mazeHeight)
             )
           )
       ),
