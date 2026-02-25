@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:labirinto/maze_page.dart';
+import 'package:labirinto/swipe_selector.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -61,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 300.h,
               child: titolo,
             ),
+            SwipeSelector(),
             ElevatedButton(
               onPressed: startGame,
               child: Text("Inizia Partita"),
