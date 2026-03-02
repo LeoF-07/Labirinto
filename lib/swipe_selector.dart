@@ -1,125 +1,5 @@
 import 'package:flutter/material.dart';
-
-enum Direction { right, left }
-
-class SwipeSelector extends StatefulWidget {
-  const SwipeSelector({super.key});
-
-  @override
-  State<SwipeSelector> createState() => SwipeSelectorState();
-}
-
-class SwipeSelectorState extends State<SwipeSelector> {
-  int index = 0;
-  Direction direction = Direction.left;
-
-  final List<String> items = ["Uno", "Due", "Tre", "Quattro"];
-
-  String? outgoing;
-  String? incoming;
-
-  double outgoingX = 0;
-  double incomingX = 0;
-
-  void animateTo(int newIndex, Direction dir) {
-    outgoing = items[index];
-    incoming = items[newIndex];
-    direction = dir;
-
-    // posizioni iniziali
-    outgoingX = 0;
-    incomingX = dir == Direction.left ? 200 : -200;
-
-    setState(() {});
-
-    // frame successivo → animazione
-    Future.delayed(const Duration(milliseconds: 16), () {
-      setState(() {
-        outgoingX = dir == Direction.left ? -200 : 200;
-        incomingX = 0;
-      });
-    });
-
-    // fine animazione → pulizia
-    Future.delayed(const Duration(milliseconds: 250), () {
-      setState(() {
-        index = newIndex;
-        outgoing = null;
-        incoming = null;
-      });
-    });
-  }
-
-  void selectNext() {
-    animateTo((index + 1) % items.length, Direction.left);
-  }
-
-  void selectPrevious() {
-    animateTo((index - 1 + items.length) % items.length, Direction.right);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        final v = details.primaryVelocity;
-        if (v == null) return;
-
-        if (v < 0) selectNext();
-        if (v > 0) selectPrevious();
-      },
-      child: Center(
-        child: SizedBox(
-          width: 200,
-          height: 60,
-          child: Stack(
-            children: [
-              // Mostra il testo statico SOLO quando non c’è animazione
-              if (outgoing == null && incoming == null)
-                _buildText(items[index]),
-
-              if (outgoing != null)
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 250),
-                  left: outgoingX,
-                  top: 0,
-                  child: _buildText(outgoing!),
-                ),
-
-              if (incoming != null)
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 250),
-                  left: incomingX,
-                  top: 0,
-                  child: _buildText(incoming!),
-                ),
-            ],
-          )
-        ),
-      ),
-    );
-  }
-
-  Widget _buildText(String text) {
-    return SizedBox(
-      width: 200,
-      height: 60,
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-/*
-import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 enum Direction {right, left}
 
@@ -130,159 +10,129 @@ class SwipeSelector extends StatefulWidget {
   State<SwipeSelector> createState() => SwipeSelectorState();
 }
 
-class SwipeSelectorState extends State<SwipeSelector>{
-  int index = 0;
+class SwipeSelectorState extends State<SwipeSelector> {
+  int index = 1;
   Direction direction = Direction.left;
-  final List items = ["Uno", "Due", "Tre", "Quattro"];
 
-  void selectNext(){
+  final List<String> items = ["Facile", "Medio", "Difficile"];
+  TextStyle selectedTextStyle = TextStyle(fontSize: 30.w);
+  TextStyle normalTextStyle = TextStyle(fontSize: 15.w);
+
+  void selectNext() {
     setState(() {
       index = (index + 1) % items.length;
       direction = Direction.left;
+      //shiftLeft();
     });
   }
 
-  void selectPrevious(){
+  void selectPrevious() {
     setState(() {
       index = (index - 1 + items.length) % items.length;
       direction = Direction.right;
+      //shiftRight();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity! < 0) {
-          selectNext();
-        }
-        else if (details.primaryVelocity! > 0) {
-          selectPrevious();
-        }
-      },
-      child: Center(
-          child: SizedBox(
-            width: double.infinity,
-            child:
-          )
-      ),
-    );
-  }
-}
-*/
-
-/*
-class SwipeSelectorState extends State<SwipeSelector>
-    with SingleTickerProviderStateMixin {
-  int currentIndex = 0;
-  int? outgoingIndex;
-  bool isAnimating = false;
-  Direction direction = Direction.left;
-
-  late final AnimationController _controller;
-  late Animation<Offset> _inAnimation;
-  late Animation<Offset> _outAnimation;
-
-  final items = ["Uno", "Due", "Tre", "Quattro"];
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() {
-          outgoingIndex = null;
-          isAnimating = false;
-        });
-        _controller.reset();
+  /*
+  void shiftLeft() {
+    setState(() {
+      for (int i = 0; i < offsets.length; i++) {
+        offsets[i] = offsets[i].translate(-50.w, 0.0);
       }
     });
   }
 
-  void _setAnimations() {
-    final inBegin =
-    direction == Direction.left ? const Offset(1, 0) : const Offset(-1, 0);
-    final outEnd =
-    direction == Direction.left ? const Offset(-2, 0) : const Offset(2, 0);
-
-    _inAnimation = Tween<Offset>(
-      begin: inBegin,
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _outAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: outEnd,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  void _navigate(Direction dir, int nextIndex) {
-    if (isAnimating) return;
+  void shiftRight() {
     setState(() {
-      direction = dir;
-      outgoingIndex = currentIndex;
-      currentIndex = nextIndex;
-      isAnimating = true;
+      for (int i = 0; i < offsets.length; i++) {
+        offsets[i] = offsets[i].translate(50.w, 0.0);
+      }
     });
-    _setAnimations();
-    _controller.forward();
   }
 
-  void selectNext() =>
-      _navigate(Direction.left, (currentIndex + 1) % items.length);
+  final List offsets = [
+    Offset(80.w, 50.h),
+    Offset(150.w, 50.h),
+    Offset(260.w, 50.h)
+  ];
+  */
 
-  void selectPrevious() => _navigate(
-      Direction.right, (currentIndex - 1 + items.length) % items.length);
+  double notSelectedWidth = 70.w;
+  double notSelectedHeight = 50.h;
+  double selectedWidth = 110.w;
+  double selectedHeight = 50.h;
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Offset computeOffset(int itemIndex, int selectedIndex) {
+    double centerX = 145.w;
+    double leftSpacing = 70.w;
+    double rightSpacing = 110.w;
+    double height = 0.h;
+
+    int relative = itemIndex - selectedIndex;
+
+    if(selectedIndex == 0 && relative == 0){
+      return Offset(centerX + relative * leftSpacing, height);
+    }
+    else if(selectedIndex == 0 && relative > 0){
+      return Offset(centerX + relative * leftSpacing + 30.w, height);
+    }
+
+    if (relative == 0) {
+      return Offset(centerX, height);
+    }
+    else if (relative < 0) {
+      // elemento a sinistra
+      return Offset(centerX + relative * leftSpacing, height);
+    } else {
+      // elemento a destra
+      return Offset(centerX + relative * rightSpacing, height);
+    }
   }
 
-  Widget _buildItem(String text) {
-    return Text(text, style: const TextStyle(fontSize: 40));
-  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity! < 0) selectNext();
-        else if (details.primaryVelocity! > 0) selectPrevious();
-      },
-      child: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: ClipRect(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (isAnimating) ...[
-                  // Uscente
-                  SlideTransition(
-                    position: _outAnimation,
-                    child: _buildItem(items[outgoingIndex!]),
-                  ),
-                  // Entrante
-                  SlideTransition(
-                    position: _inAnimation,
-                    child: _buildItem(items[currentIndex]),
-                  ),
-                ] else
-                // Nessuna animazione: mostro solo quello corrente, fermo
-                  _buildItem(items[currentIndex]),
-              ],
+    List<AnimatedPositioned> positioneds = [];
+
+    for (int i = 0; i < 3; i++) {
+      final offset = computeOffset(i, index);
+
+      positioneds.add(
+        AnimatedPositioned(
+          duration: Duration(milliseconds: 300),
+          left: offset.dx,
+          top: offset.dy,
+          height: index == i ? selectedHeight : notSelectedHeight,
+          width: index == i ? selectedWidth : notSelectedWidth,
+          child: Container(
+            alignment: Alignment.center,
+            //color: Colors.white,
+            child: Text(
+              items[i],
+              style: index == i ? selectedTextStyle : normalTextStyle,
             ),
           ),
-        )
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        final v = details.primaryVelocity;
+        if (v == null) return;
+
+        if (v < 0) selectNext();
+        if (v > 0) selectPrevious();
+      },
+      child: Container(
+        width: double.infinity,
+        height: 50.h,
+        margin: EdgeInsets.only(bottom: 50.h, left: 10.w, right: 10.w),
+        decoration: BoxDecoration(border: Border.all(width: 0.8.w), borderRadius: BorderRadius.circular(10.w)),
+        child: Stack(children: positioneds),
       ),
     );
   }
+
 }
-*/

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'homepage.dart';
-import 'maze_page.dart';
 
-void main() {
+void main() async {
+  await Future.delayed(Duration(seconds: 2));
   runApp(const MyApp());
 }
 
@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           ),
-          home: const MyHomePage(title: 'Labirinto'),
-          //home: const MazePage()
-      )
+          home: child,
+      ),
+      child: const MyHomePage(title: 'Labirinto'),
     );
   }
 }

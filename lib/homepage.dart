@@ -13,15 +13,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Offset> offsets = [
-    Offset(200.h, 100.w),
-    Offset(230.h, 100.w),
-    Offset(260.h, 100.w),
-    Offset(260.h, 130.w),
-    Offset(260.h, 160.w),
-    Offset(230.h, 160.w),
-    Offset(200.h, 160.w),
-    Offset(200.h, 190.w),
-    Offset(200.h, 220.w)
+    Offset(100.h, 120.w),
+    Offset(130.h, 120.w),
+    Offset(160.h, 120.w),
+    Offset(160.h, 150.w),
+    Offset(160.h, 180.w),
+    Offset(130.h, 180.w),
+    Offset(100.h, 180.w),
+    Offset(100.h, 210.w),
+    Offset(100.h, 240.w)
   ];
   
   final List charsOfTitle = "LABIRINTO".split("");
@@ -57,12 +57,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(
+            Container(
               width: double.infinity,
               height: 300.h,
+              margin: EdgeInsets.only(bottom: 30.h),
               child: titolo,
             ),
+            Align(
+              alignment: Alignment.center,
+              child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Difficoltà", style: TextStyle(fontSize: 15.w))),
+            ),
             SwipeSelector(),
+            SizedBox(height: 200.h),
             ElevatedButton(
               onPressed: startGame,
               child: Text("Inizia Partita"),
