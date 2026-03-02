@@ -12,6 +12,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  GlobalKey<SwipeSelectorState> selectorKey = GlobalKey();
+
   final List<Offset> offsets = [
     Offset(100.h, 120.w),
     Offset(130.h, 120.w),
@@ -38,6 +40,29 @@ class _MyHomePageState extends State<MyHomePage> {
         )
       );
     }
+    
+    children.add(
+      Positioned(
+        top: 140.h,
+        left: 210.w,
+        child: Image.asset("assets/images/logo_no_bg.png", width: 50.w,),
+      )
+    );
+
+    children.add(
+      Positioned(
+        top: offsets[3].dx - 8.h,
+        left: offsets[3].dy - 2.w,
+        child: Container(
+          width: 10.w,
+          height: 10.h,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+          ),
+        )
+      )
+    );
 
     Stack stack = Stack(
       children: children,
@@ -46,7 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startGame(){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MazePage()));
+    int difficulty = selectorKey.currentState!.index;
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MazePage(difficulty: difficulty)));
   }
 
   @override
@@ -59,20 +85,39 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Container(
               width: double.infinity,
-              height: 300.h,
+              height: 250.h,
               margin: EdgeInsets.only(bottom: 30.h),
               child: titolo,
+            ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 200.w),
+              margin: EdgeInsets.only(bottom: 80.h),
+              child: Text("Inclina il tuo telefono per muovere la pallina lungo il labirinto e raggiungi l'uscita!", style: TextStyle(fontSize: 15.w), textAlign: TextAlign.center),
             ),
             Align(
               alignment: Alignment.center,
               child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Difficoltà", style: TextStyle(fontSize: 15.w))),
             ),
-            SwipeSelector(),
-            SizedBox(height: 200.h),
+            SwipeSelector(key: selectorKey),
+            SizedBox(height: 150.h),
             ElevatedButton(
               onPressed: startGame,
-              child: Text("Inizia Partita"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.w),
+                ),
+                elevation: 6,
+                shadowColor: Colors.black45,
+              ),
+              child: Text(
+                "Inizia Partita",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             )
+
           ],
         )
       ),

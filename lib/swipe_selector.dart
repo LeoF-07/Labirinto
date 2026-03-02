@@ -60,12 +60,19 @@ class SwipeSelectorState extends State<SwipeSelector> {
 
   double notSelectedWidth = 70.w;
   double notSelectedHeight = 50.h;
-  double selectedWidth = 110.w;
+  double selectedWidth = 120.w;
   double selectedHeight = 50.h;
 
   Offset computeOffset(int itemIndex, int selectedIndex) {
+    /*
     double centerX = 145.w;
     double leftSpacing = 70.w;
+    double rightSpacing = 110.w;
+    double height = 0.h;
+    */
+
+    double centerX = 145.w;
+    double leftSpacing = 60.w;
     double rightSpacing = 110.w;
     double height = 0.h;
 
@@ -75,7 +82,7 @@ class SwipeSelectorState extends State<SwipeSelector> {
       return Offset(centerX + relative * leftSpacing, height);
     }
     else if(selectedIndex == 0 && relative > 0){
-      return Offset(centerX + relative * leftSpacing + 30.w, height);
+      return Offset(centerX + relative * leftSpacing + 50.w, height);
     }
 
     if (relative == 0) {
@@ -106,7 +113,7 @@ class SwipeSelectorState extends State<SwipeSelector> {
           height: index == i ? selectedHeight : notSelectedHeight,
           width: index == i ? selectedWidth : notSelectedWidth,
           child: Container(
-            alignment: Alignment.center,
+            alignment: Alignment.centerLeft,
             //color: Colors.white,
             child: Text(
               items[i],
@@ -129,7 +136,7 @@ class SwipeSelectorState extends State<SwipeSelector> {
         width: double.infinity,
         height: 50.h,
         margin: EdgeInsets.only(bottom: 50.h, left: 10.w, right: 10.w),
-        decoration: BoxDecoration(border: Border.all(width: 0.8.w), borderRadius: BorderRadius.circular(10.w)),
+        decoration: BoxDecoration(color: Colors.orange, /*border: Border.all(width: 0.8.w),*/ borderRadius: BorderRadius.circular(10.w)),
         child: Stack(children: positioneds),
       ),
     );

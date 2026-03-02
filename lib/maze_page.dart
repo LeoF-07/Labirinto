@@ -9,15 +9,17 @@ import 'maze.dart';
 import 'maze_painter.dart';
 
 class MazePage extends StatefulWidget{
-  const MazePage({super.key});
+  final int difficulty;
+
+  const MazePage({super.key, required this.difficulty});
 
   @override
   State<MazePage> createState() => MazePageState();
 }
 
 class MazePageState extends State<MazePage>{
-  int rows = 43;
-  int cols = 25;
+  late int rows;
+  late int cols;
 
   late StreamSubscription<AccelerometerEvent> accelSub;
   bool falling = true;
@@ -31,6 +33,21 @@ class MazePageState extends State<MazePage>{
 
   @override
   void initState() {
+    switch(widget.difficulty){
+      case 0:
+        rows = 25;
+        cols = 25;
+        break;
+      case 1:
+        rows = 33;
+        cols = 25;
+        break;
+      case 2:
+        rows = 43;
+        cols = 25;
+        break;
+    }
+
     mazeWidth = (cols * 16).w;
     mazeHeight = (rows * 16).h;
 
