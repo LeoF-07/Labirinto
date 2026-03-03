@@ -23,6 +23,8 @@ class MazePageState extends State<MazePage>{
 
   late StreamSubscription<AccelerometerEvent> accelSub;
   bool falling = true;
+  bool started = false;
+  bool win = false;
 
   late double mazeWidth;
   late double mazeHeight;
@@ -57,11 +59,36 @@ class MazePageState extends State<MazePage>{
     maze = Maze(rows, cols);
     ball = Ball(maze.cx * cellWidth + cellWidth / 2, -40);
 
-    _startInitialFall();
+    //_startInitialFall();
     super.initState();
   }
 
+  void restart() {
+    try {
+      accelSub.cancel();
+    } catch (_) {}
+
+    falling = true;
+    win = false;
+    started = false;
+
+    ball.vx = 0;
+    ball.vy = 0;
+
+    ball.x = maze.cx * cellWidth + cellWidth / 2;
+    ball.y = -40;
+
+    // Riapro l’ingresso
+    maze.walls[0][maze.cx] = false;
+
+    setState(() {});
+
+    _startInitialFall();
+  }
+
+
   void _startInitialFall() {
+    started = true;
     Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (!falling) {
         timer.cancel();
@@ -70,7 +97,7 @@ class MazePageState extends State<MazePage>{
 
       setState(() {
         _updateFall();
-        if (!falling) {
+        if (!falling && !win) {
           _startTiltControl();
         }
       });
@@ -97,13 +124,20 @@ class MazePageState extends State<MazePage>{
     int cellY = ((nextY + ball.radius) / cellHeight).floor();
 
     // Protezione: se cellY è fuori range, fermiamo la caduta
+    /*
     if (cellY < 0 || cellY >= maze.rows) {
+      falling = false;
+      return;
+    }
+    */
+
+    if(cellY > rows + 4){
       falling = false;
       return;
     }
 
     // Se sotto c’è un muro → fermiamo la caduta
-    if (maze.walls[cellY][cellX]) {
+    if (cellY < rows && maze.walls[cellY][cellX]) {
       falling = false;
 
       // Allineo la pallina sopra il pavimento
@@ -124,22 +158,14 @@ class MazePageState extends State<MazePage>{
   void _startTiltControl() {
     // Attiva accelerometro
     accelSub = accelerometerEventStream().listen((AccelerometerEvent event) {
-      if (falling) return;
+      if (falling || win) return;
 
-      /*const double tiltFactorX = 0.12; // sensibilità regolabile
-      const double tiltFactorY = 0.12;
-      const tiltFactorYUp = 0.22;*/
-
-      const double tiltFactorX = 0.09; // sensibilità regolabile
-      const double tiltFactorY = 0.09;
-      const tiltFactorYUp = 0.10;
+      const double tiltFactorX = 0.30; // sensibilità regolabile
+      const double tiltFactorY = 0.30;
+      const tiltFactorYUp = 0.30;
 
       setState(() {
-        // Movimento orizzontale
-        //ball.vx += -event.x * tiltFactor;
         ball.vx += -event.x * tiltFactorX;
-
-        // Movimento verticale
         if (event.y < 0){
           // Salita più veloce
           ball.vy += event.y * tiltFactorYUp;
@@ -151,9 +177,12 @@ class MazePageState extends State<MazePage>{
       });
     });
 
-    // Timer fisico per aggiornare la posizione
-    Timer.periodic(const Duration(milliseconds: 16), (_) {
-      if (falling) return;
+    // Timer per aggiornare la posizione
+    Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (falling || win) {
+        timer.cancel();
+        return;
+      }
 
       setState(() {
         _updateBallPhysics();
@@ -161,107 +190,78 @@ class MazePageState extends State<MazePage>{
     });
   }
 
-  /*
   void _updateBallPhysics() {
     double nextX = ball.x + ball.vx;
     double nextY = ball.y + ball.vy;
 
     // Collisione orizzontale
-    int cellX = ((nextX + ball.radius) / cellWidth).floor();
-    int cellY = (ball.y / cellHeight).floor();
-
-    if (!maze.walls[cellY][cellX]) {
-      ball.x = nextX;
-    } else {
-      ball.vx = 0;
-    }
-
-    // Collisione verticale
-    cellX = (ball.x / cellWidth).floor();
-    cellY = ((nextY + ball.radius) / cellHeight).floor();
-
-
-    if (!maze.walls[cellY][cellX]) {
-      ball.y = nextY;
-    } else {
-      ball.vy = 0;
-    }
-
-    // Attrito leggero
-    ball.vx *= 0.95;
-    ball.vy *= 0.95;
-  }
-  */
-
-  void _updateBallPhysics() {
-    double nextX = ball.x + ball.vx;
-    double nextY = ball.y + ball.vy;
-
-    // -------------------------
-    // COLLISIONE ORIZZONTALE
-    // -------------------------
-
     if (ball.vx > 0) {
-      // Sta andando a destra → controllo il bordo destro
+      // Sta andando a destra
       int cellX = ((nextX + ball.radius) / cellWidth).floor();
       int cellY = (ball.y / cellHeight).floor();
 
       if (!maze.walls[cellY][cellX]) {
         ball.x = nextX;
       } else {
-        // Allineo la pallina al bordo sinistro del muro
+        // Collisione a destra
+        // Allinea la pallina al bordo sinistro del muro
         ball.x = cellX * cellWidth - ball.radius;
         ball.vx = 0;
       }
 
     } else if (ball.vx < 0) {
-      // Sta andando a sinistra → controllo il bordo sinistro
+      // Sta andando a sinistra
       int cellX = ((nextX - ball.radius) / cellWidth).floor();
       int cellY = (ball.y / cellHeight).floor();
 
       if (!maze.walls[cellY][cellX]) {
         ball.x = nextX;
       } else {
-        // Allineo la pallina al bordo destro del muro
+        // Collisione a sinistra
+        // Allinea la pallina al bordo destro del muro
         ball.x = (cellX + 1) * cellWidth + ball.radius;
         ball.vx = 0;
       }
     }
 
-    // -------------------------
-    // COLLISIONE VERTICALE
-    // -------------------------
-
+    // Collisione verticale
     if (ball.vy > 0) {
-      // Sta scendendo → controllo il bordo inferiore
+      // Sta scendendo
       int cellX = (ball.x / cellWidth).floor();
       int cellY = ((nextY + ball.radius) / cellHeight).floor();
 
-      if (!maze.walls[cellY][cellX]) {
+      if(cellY > rows - 1){
+        accelSub.cancel();
+        falling = true;
+        win = true;
+        _startInitialFall();
+        return;
+      }
+      else if (!maze.walls[cellY][cellX]) {
         ball.y = nextY;
       } else {
+        // Collisione con il pavimento
         // Allineo la pallina sopra il pavimento
         ball.y = cellY * cellHeight - ball.radius;
         ball.vy = 0;
       }
 
     } else if (ball.vy < 0) {
-      // Sta salendo → controllo il bordo superiore
+      // Sta salendo
       int cellX = (ball.x / cellWidth).floor();
       int cellY = ((nextY - ball.radius) / cellHeight).floor();
 
       if (!maze.walls[cellY][cellX]) {
         ball.y = nextY;
       } else {
+        // Collisione con il soffitto
         // Allineo la pallina sotto il soffitto
         ball.y = (cellY + 1) * cellHeight + ball.radius;
         ball.vy = 0;
       }
     }
 
-    // -------------------------
-    // ATTRITO
-    // -------------------------
+    // Attrito (la velocità della pallina non può crescere all'infinito)
     ball.vx *= 0.95;
     ball.vy *= 0.95;
   }
@@ -271,12 +271,15 @@ class MazePageState extends State<MazePage>{
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+        child: GestureDetector(
+          onDoubleTap: !started ? _startInitialFall : restart,
           child: Center(
             child: CustomPaint(
               painter: MazePainter(maze, ball),
               size: Size(mazeWidth, mazeHeight)
             )
           )
+        )
       ),
     );
   }
