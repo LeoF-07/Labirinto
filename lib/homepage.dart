@@ -85,7 +85,16 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     Stack titolo = creaStackTitolo();
 
+    SliderThemeData temaSlider = SliderTheme.of(context).copyWith(
+      activeTrackColor: Colors.orange,
+      inactiveTrackColor: Colors.grey[400],
+      thumbColor: Colors.orange,
+      overlayColor: Colors.orange.withAlpha(20),
+      valueIndicatorColor: Colors.orange,
+    );
+
     return Scaffold(
+      backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.7)!,
       body: SafeArea(
         child: Column(
           children: [
@@ -114,12 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltX:  "),),
                 Expanded(
                   child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: Colors.orange,
-                        inactiveTrackColor: Colors.grey[400],
-                        thumbColor: Colors.orange,
-                        overlayColor: Colors.orange.withAlpha(20),
-                    ),
+                    data: temaSlider,
                     child: Slider(
                       value: tiltX,
                       min: 10,
@@ -138,12 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltY:  ")),
                 Expanded(
                     child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: Colors.orange,
-                          inactiveTrackColor: Colors.grey[400],
-                          thumbColor: Colors.orange,
-                          overlayColor: Colors.orange.withAlpha(20),
-                        ),
+                        data: temaSlider,
                         child: Slider(
                             value: tiltY,
                             min: 10,
@@ -162,12 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltUp:")),
                 Expanded(
                     child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: Colors.orange,
-                          inactiveTrackColor: Colors.grey[400],
-                          thumbColor: Colors.orange,
-                          overlayColor: Colors.orange.withAlpha(20),
-                        ),
+                        data: temaSlider,
                         child: Slider(
                             value: tiltUp,
                             min: 10,

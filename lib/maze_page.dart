@@ -25,6 +25,7 @@ class MazePageState extends State<MazePage>{
   late int cols;
 
   late StreamSubscription<AccelerometerEvent> accelSub;
+  late Timer cronometro;
   bool falling = true;
   bool started = false;
   bool win = false;
@@ -39,6 +40,9 @@ class MazePageState extends State<MazePage>{
   late double tiltX;
   late double tiltY;
   late double tiltUp;
+
+  String seconds = "00";
+  String minutes = "00";
 
   @override
   void initState() {
@@ -77,7 +81,11 @@ class MazePageState extends State<MazePage>{
   void restart() {
     try {
       accelSub.cancel();
+      cronometro.cancel();
     } catch (_) {}
+
+    seconds = "00";
+    minutes = "00";
 
     falling = true;
     win = false;
@@ -97,13 +105,34 @@ class MazePageState extends State<MazePage>{
     _startInitialFall();
   }
 
+  void _showConfirmDialog(){
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text("Abbandona"),
+        content: Text("Sei sicuro di voler abbandonare la partita?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              win = true;
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text("Abbandona"),
+          )
+        ],
+      ),
+    );
+  }
+
   void _showWinDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         title: const Text("Hai vinto! 🎉"),
-        content: const Text("Complimenti, sei uscito dal labirinto!"),
+        content: Text("Complimenti, sei uscito dal labirinto in${int.parse(minutes) > 0 ? " ${minutes}m e" : ""} ${seconds}s"),
         actions: [
           TextButton(
             onPressed: () {
@@ -128,6 +157,23 @@ class MazePageState extends State<MazePage>{
       setState(() {
         _updateFall();
         if (!falling && !win) {
+          cronometro = Timer.periodic(Duration(seconds: 1), (timer) {
+            if(win){
+              timer.cancel();
+            }
+
+            int s = int.parse(seconds);
+            int m = int.parse(minutes);
+
+            s++;
+            if(s == 60){
+              m++;
+              s = 0;
+            }
+
+            seconds = (s < 10) ? "0$s" : "$s";
+            minutes = (m < 10) ? "0$m" : "$m";
+          });
           _startTiltControl();
         }
       });
@@ -161,7 +207,7 @@ class MazePageState extends State<MazePage>{
     }
     */
 
-    if(cellY > rows + 4){
+    if(cellY > rows + 2){
       falling = false;
       Future.microtask((){
         _showWinDialog();
@@ -306,7 +352,8 @@ class MazePageState extends State<MazePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+        backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.6)!,
+        body: SafeArea(
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,
@@ -315,7 +362,12 @@ class MazePageState extends State<MazePage>{
               Positioned(
                 top: 40.h,
                 left: 20.w,
-                child: IconButton(onPressed: () {win = true; Navigator.pop(context);}, icon: Icon(Icons.arrow_back_rounded, size: 40.w)),
+                child: IconButton(onPressed: _showConfirmDialog, icon: Icon(Icons.arrow_back_rounded, size: 40.w)),
+              ),
+              Positioned(
+                top: 50.h,
+                right: 30.w,
+                child: Text("$minutes:$seconds", style: TextStyle(fontSize: 30.w)),
               ),
               GestureDetector(
                 onDoubleTap: !started ? _startInitialFall : restart,
@@ -325,6 +377,14 @@ class MazePageState extends State<MazePage>{
                     size: Size(mazeWidth, mazeHeight)
                   )
                 )
+              ),
+              Positioned(
+                left: 5.w,
+                bottom: widget.difficulty == 2 ? 20.h : 90.h,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text("Double Tap per iniziare / ricominciare", style: TextStyle(fontSize: 18.w)),
+                ),
               )
             ],
           ),
