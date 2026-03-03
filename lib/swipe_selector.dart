@@ -63,53 +63,46 @@ class SwipeSelectorState extends State<SwipeSelector> {
   double selectedWidth = 120.w;
   double selectedHeight = 50.h;
 
-  Offset computeOffset(int itemIndex, int selectedIndex) {
-    /*
-    double centerX = 145.w;
-    double leftSpacing = 70.w;
-    double rightSpacing = 110.w;
-    double height = 0.h;
-    */
-
-    double centerX = 145.w;
-    double leftSpacing = 60.w;
-    double rightSpacing = 110.w;
-    double height = 0.h;
-
-    int relative = itemIndex - selectedIndex;
-
-    if(selectedIndex == 0 && relative == 0){
-      return Offset(centerX + relative * leftSpacing, height);
-    }
-    else if(selectedIndex == 0 && relative > 0){
-      return Offset(centerX + relative * leftSpacing + 50.w, height);
-    }
-
-    if (relative == 0) {
-      return Offset(centerX, height);
-    }
-    else if (relative < 0) {
-      // elemento a sinistra
-      return Offset(centerX + relative * leftSpacing, height);
-    } else {
-      // elemento a destra
-      return Offset(centerX + relative * rightSpacing, height);
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     List<AnimatedPositioned> positioneds = [];
 
-    for (int i = 0; i < 3; i++) {
-      final offset = computeOffset(i, index);
+    List<double> offsets;
 
+    if(index == 0){
+      offsets = [150.w, 255.w, 320.w];
+        /*
+        Offset(150.w, 0.h),
+        Offset(255.w, 0.h),
+        Offset(320.w, 0.h)
+        */
+      //];
+    } else if (index == 1){
+      offsets = [90.w, 150.w, 260.w];
+        /*
+        Offset(90.w, 0.h),
+        Offset(150.w, 0.h),
+        Offset(260.w, 0.h)
+      ];
+
+         */
+    } else {
+      offsets = [30.w, 90.w, 150.w];
+        /*
+        Offset(30.w, 0.h),
+        Offset(90.w, 0.h),
+        Offset(150.w, 0.h)
+      ];
+
+         */
+    }
+
+    for (int i = 0; i < 3; i++) {
       positioneds.add(
         AnimatedPositioned(
           duration: Duration(milliseconds: 300),
-          left: offset.dx,
-          top: offset.dy,
+          left: offsets[i],
           height: index == i ? selectedHeight : notSelectedHeight,
           width: index == i ? selectedWidth : notSelectedWidth,
           child: Container(

@@ -10,8 +10,11 @@ import 'maze_painter.dart';
 
 class MazePage extends StatefulWidget{
   final int difficulty;
+  final double tiltX;
+  final double tiltY;
+  final double tiltUp;
 
-  const MazePage({super.key, required this.difficulty});
+  const MazePage({super.key, required this.difficulty, required this.tiltX, required this.tiltY, required this.tiltUp});
 
   @override
   State<MazePage> createState() => MazePageState();
@@ -32,6 +35,10 @@ class MazePageState extends State<MazePage>{
   late double cellHeight;
   late Maze maze;
   late Ball ball;
+
+  late double tiltX;
+  late double tiltY;
+  late double tiltUp;
 
   @override
   void initState() {
@@ -58,6 +65,10 @@ class MazePageState extends State<MazePage>{
 
     maze = Maze(rows, cols);
     ball = Ball(maze.cx * cellWidth + cellWidth / 2, -40);
+
+    tiltX = widget.tiltX / 100;
+    tiltY = widget.tiltY / 100;
+    tiltUp = widget.tiltUp / 100;
 
     //_startInitialFall();
     super.initState();
@@ -86,6 +97,25 @@ class MazePageState extends State<MazePage>{
     _startInitialFall();
   }
 
+  void _showWinDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text("Hai vinto! 🎉"),
+        content: const Text("Complimenti, sei uscito dal labirinto!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text("HomePage"),
+          )
+        ],
+      ),
+    );
+  }
 
   void _startInitialFall() {
     started = true;
@@ -133,6 +163,9 @@ class MazePageState extends State<MazePage>{
 
     if(cellY > rows + 4){
       falling = false;
+      Future.microtask((){
+        _showWinDialog();
+      });
       return;
     }
 
@@ -158,11 +191,14 @@ class MazePageState extends State<MazePage>{
   void _startTiltControl() {
     // Attiva accelerometro
     accelSub = accelerometerEventStream().listen((AccelerometerEvent event) {
-      if (falling || win) return;
+      if (falling || win) {
+        accelSub.cancel();
+        return;
+      }
 
-      const double tiltFactorX = 0.30; // sensibilità regolabile
-      const double tiltFactorY = 0.30;
-      const tiltFactorYUp = 0.30;
+      double tiltFactorX = tiltX; // sensibilità regolabile
+      double tiltFactorY = tiltY;
+      double tiltFactorYUp = tiltUp;
 
       setState(() {
         ball.vx += -event.x * tiltFactorX;
@@ -271,16 +307,29 @@ class MazePageState extends State<MazePage>{
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: GestureDetector(
-          onDoubleTap: !started ? _startInitialFall : restart,
-          child: Center(
-            child: CustomPaint(
-              painter: MazePainter(maze, ball),
-              size: Size(mazeWidth, mazeHeight)
-            )
-          )
-        )
-      ),
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 40.h,
+                left: 20.w,
+                child: IconButton(onPressed: () {win = true; Navigator.pop(context);}, icon: Icon(Icons.arrow_back_rounded, size: 40.w)),
+              ),
+              GestureDetector(
+                onDoubleTap: !started ? _startInitialFall : restart,
+                child: Center(
+                  child: CustomPaint(
+                    painter: MazePainter(maze, ball),
+                    size: Size(mazeWidth, mazeHeight)
+                  )
+                )
+              )
+            ],
+          ),
+        ),
+      )
     );
   }
 }
