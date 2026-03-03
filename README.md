@@ -25,6 +25,7 @@ Con un Double Tap inizia la partita e parte il cronometro, con i successivi Doub
 
 Il labirinto consiste in una matrice di valori booleani (true = muro, false = cella libera) e i percorsi vengono generati con un algoritmo ricorsivo DFS, che assicura un percorso che porta all'uscita.
 La classe MazePainter si occupa di disegnare il labirinto e la pallina ad ogni cambiamento.
+
 Ogni 16ms viene aggiornata la posizione della pallina in base all'inclinazione del dispositivo e viene effettuato il controllo che non stia entrando in un bordo.
 In questo secondo caso semplicemente la pallina viene allineata adiacente al muro.
 Dividendo l'altezza e la larghezza del labirinto rispettivamente per il numero di righe e colonne si riescono ad ottenere le dimensioni delle celle. È proprio su queste celle che si effettuano i confronti, si trova in quale cella la pallina si posizionerà e si controlla che in quella cella non sia presente un muro, in caso si riporta alla cella precedente posizionandola in modo adiacente al muro.
