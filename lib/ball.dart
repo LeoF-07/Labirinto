@@ -1,3 +1,4 @@
+// Classe Ball, rappresenta la palla
 class Ball{
   double x;
   double y;

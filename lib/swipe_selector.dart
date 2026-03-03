@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-enum Direction {right, left}
-
+// Classe SwipeSelector, implementa il selettore della difficoltà che funziona con gli swipe
 class SwipeSelector extends StatefulWidget {
   const SwipeSelector({super.key});
 
@@ -12,7 +11,6 @@ class SwipeSelector extends StatefulWidget {
 
 class SwipeSelectorState extends State<SwipeSelector> {
   int index = 1;
-  Direction direction = Direction.left;
 
   final List<String> items = ["Facile", "Medio", "Difficile"];
   TextStyle selectedTextStyle = TextStyle(fontSize: 30.w);
@@ -21,42 +19,14 @@ class SwipeSelectorState extends State<SwipeSelector> {
   void selectNext() {
     setState(() {
       index = (index + 1) % items.length;
-      direction = Direction.left;
-      //shiftLeft();
     });
   }
 
   void selectPrevious() {
     setState(() {
       index = (index - 1 + items.length) % items.length;
-      direction = Direction.right;
-      //shiftRight();
     });
   }
-
-  /*
-  void shiftLeft() {
-    setState(() {
-      for (int i = 0; i < offsets.length; i++) {
-        offsets[i] = offsets[i].translate(-50.w, 0.0);
-      }
-    });
-  }
-
-  void shiftRight() {
-    setState(() {
-      for (int i = 0; i < offsets.length; i++) {
-        offsets[i] = offsets[i].translate(50.w, 0.0);
-      }
-    });
-  }
-
-  final List offsets = [
-    Offset(80.w, 50.h),
-    Offset(150.w, 50.h),
-    Offset(260.w, 50.h)
-  ];
-  */
 
   double notSelectedWidth = 70.w;
   double notSelectedHeight = 50.h;
@@ -72,30 +42,10 @@ class SwipeSelectorState extends State<SwipeSelector> {
 
     if(index == 0){
       offsets = [150.w, 255.w, 320.w];
-        /*
-        Offset(150.w, 0.h),
-        Offset(255.w, 0.h),
-        Offset(320.w, 0.h)
-        */
-      //];
     } else if (index == 1){
       offsets = [90.w, 150.w, 260.w];
-        /*
-        Offset(90.w, 0.h),
-        Offset(150.w, 0.h),
-        Offset(260.w, 0.h)
-      ];
-
-         */
     } else {
       offsets = [30.w, 90.w, 150.w];
-        /*
-        Offset(30.w, 0.h),
-        Offset(90.w, 0.h),
-        Offset(150.w, 0.h)
-      ];
-
-         */
     }
 
     for (int i = 0; i < 3; i++) {

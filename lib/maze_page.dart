@@ -8,6 +8,7 @@ import 'ball.dart';
 import 'maze.dart';
 import 'maze_painter.dart';
 
+// Classe MazePage, implementa tutta la logica del labirinto e mostra il gioco a schermo
 class MazePage extends StatefulWidget{
   final int difficulty;
   final double tiltX;
@@ -74,7 +75,6 @@ class MazePageState extends State<MazePage>{
     tiltY = widget.tiltY / 100;
     tiltUp = widget.tiltUp / 100;
 
-    //_startInitialFall();
     super.initState();
   }
 
@@ -110,7 +110,7 @@ class MazePageState extends State<MazePage>{
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text("Abbandona"),
+        title: Text("Abbandona"),
         content: Text("Sei sicuro di voler abbandonare la partita?"),
         actions: [
           TextButton(
@@ -119,7 +119,7 @@ class MazePageState extends State<MazePage>{
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text("Abbandona"),
+            child: Text("Abbandona"),
           )
         ],
       ),
@@ -131,7 +131,7 @@ class MazePageState extends State<MazePage>{
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text("Hai vinto! 🎉"),
+        title: Text("Hai vinto! 🎉"),
         content: Text("Complimenti, sei uscito dal labirinto in${int.parse(minutes) > 0 ? " ${minutes}m e" : ""} ${seconds}s"),
         actions: [
           TextButton(
@@ -139,7 +139,7 @@ class MazePageState extends State<MazePage>{
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text("HomePage"),
+            child: Text("Home Page"),
           )
         ],
       ),
@@ -182,14 +182,13 @@ class MazePageState extends State<MazePage>{
 
   void _updateFall() {
     // Gravità
-    ball.vy += 0.5;
+    ball.vy += 0.2;
 
     // Prossima posizione
     double nextY = ball.y + ball.vy;
 
     // Faccio partire la pallina da una coordinata negativa. Se faccio confronti prima di arrivare al centro della prima cella
     // ottengo errori.
-    // !!!!!!!!!!! Anzi, in realtà probabilmente l'unica cosa che succede è che non cade perché sotto ho messo la protezione
     if(ball.y < cellHeight / 2){
       ball.y = nextY;
       return;
@@ -199,14 +198,6 @@ class MazePageState extends State<MazePage>{
     int cellX = (ball.x / cellWidth).floor();
     int cellY = ((nextY + ball.radius) / cellHeight).floor();
 
-    // Protezione: se cellY è fuori range, fermiamo la caduta
-    /*
-    if (cellY < 0 || cellY >= maze.rows) {
-      falling = false;
-      return;
-    }
-    */
-
     if(cellY > rows + 2){
       falling = false;
       Future.microtask((){
@@ -215,18 +206,17 @@ class MazePageState extends State<MazePage>{
       return;
     }
 
-    // Se sotto c’è un muro → fermiamo la caduta
+    // Quando incontra il pavimento ferma la caduta
     if (cellY < rows && maze.walls[cellY][cellX]) {
       falling = false;
 
-      // Allineo la pallina sopra il pavimento
+      // Allinea la pallina sopra il pavimento
       ball.y = cellY * cellHeight - ball.radius;
 
       _closeEntrance();
       return;
     }
 
-    // Nessun muro → aggiorno la posizione
     ball.y = nextY;
   }
 
@@ -235,32 +225,28 @@ class MazePageState extends State<MazePage>{
   }
 
   void _startTiltControl() {
-    // Attiva accelerometro
+    // Attivo accelerometro
     accelSub = accelerometerEventStream().listen((AccelerometerEvent event) {
       if (falling || win) {
         accelSub.cancel();
         return;
       }
 
-      double tiltFactorX = tiltX; // sensibilità regolabile
-      double tiltFactorY = tiltY;
-      double tiltFactorYUp = tiltUp;
-
       setState(() {
-        ball.vx += -event.x * tiltFactorX;
+        ball.vx += -event.x * tiltX;
         if (event.y < 0){
           // Salita più veloce
-          ball.vy += event.y * tiltFactorYUp;
+          ball.vy += event.y * tiltUp;
         }
         else{
           // Discesa normale
-          ball.vy += event.y * tiltFactorY;
+          ball.vy += event.y * tiltY;
         }
       });
     });
 
     // Timer per aggiornare la posizione
-    Timer.periodic(const Duration(milliseconds: 16), (timer) {
+    Timer.periodic(Duration(milliseconds: 16), (timer) {
       if (falling || win) {
         timer.cancel();
         return;

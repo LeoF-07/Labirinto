@@ -1,7 +1,7 @@
 import 'dart:math';
 
+// Classe Maze, implementa il labirinto e la logica di generazione
 class Maze {
-
   int rows;
   int cols;
   late List<List<bool>> walls;
@@ -60,12 +60,12 @@ class Maze {
   }
 
   void _addEntrances() {
-    walls[0][cx] = false;     // buco nel bordo
-    walls[1][cx] = false;     // cella interna sotto l’entrata
+    walls[0][cx] = false; // buco nel bordo
+    walls[1][cx] = false; // cella interna sotto l’entrata
 
     // Uscita in basso
-    walls[rows - 1][cx + 2] = false;     // buco nel bordo
-    walls[rows - 2][cx + 2] = false;     // cella interna sopra l’uscita
+    walls[rows - 1][cx + 2] = false; // buco nel bordo
+    walls[rows - 2][cx + 2] = false; // cella interna sopra l’uscita
   }
 
 }

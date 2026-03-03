@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'ball.dart';
 import 'maze.dart';
 
+// Classe MazePainter, disegna labirinto e pallina
 class MazePainter extends CustomPainter {
   Maze maze;
   Ball ball;

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:labirinto/maze_page.dart';
 import 'package:labirinto/swipe_selector.dart';
 
+// Classe MyHomePage, mostra la home page con il titolo, delle brevi istruzioni, il selettore per la difficoltà e gli slider per le impostazioni dell'accelerometro
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
