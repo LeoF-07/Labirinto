@@ -338,7 +338,7 @@ class MazePageState extends State<MazePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.6)!,
+        backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.7)!,
         body: SafeArea(
         child: SizedBox(
           width: double.infinity,

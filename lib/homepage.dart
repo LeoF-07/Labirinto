@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:labirinto/maze_page.dart';
 import 'package:labirinto/swipe_selector.dart';
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     children.add(
       Positioned(
         top: offsets[3].dy - 8.h,
-        left: offsets[3].dx - 2.w,
+        left: offsets[3].dx - 1.5.w,
         child: Container(
           width: 10.w,
           height: 10.h,
@@ -94,109 +95,116 @@ class _MyHomePageState extends State<MyHomePage> {
       valueIndicatorColor: Colors.orange,
     );
 
-    return Scaffold(
-      backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.7)!,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 220.h,
-              margin: EdgeInsets.only(bottom: 10.h),
-              child: titolo,
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 200.w),
-              margin: EdgeInsets.only(bottom: 50.h),
-              child: Text("Inclina il tuo telefono per muovere la pallina lungo il labirinto e raggiungi l'uscita!", style: TextStyle(fontSize: 15.w), textAlign: TextAlign.center),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Difficoltà", style: TextStyle(fontSize: 15.w))),
-            ),
-            SwipeSelector(key: selectorKey),
-            Align(
-              alignment: Alignment.center,
-              child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Impostazioni accelerometro:", style: TextStyle(fontSize: 15.w))),
-            ),
-            Row(
-              children: [
-                Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltX:  "),),
-                Expanded(
-                  child: SliderTheme(
-                    data: temaSlider,
-                    child: Slider(
-                      value: tiltX,
-                      min: 10,
-                      max: 40,
-                      divisions: 30,
-                      label: tiltX.toStringAsFixed(0),
-                      onChanged: (v) => setState(() {tiltX = v;})
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: Color.lerp(Colors.orangeAccent, Colors.white, 0.7)!,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 220.h,
+                margin: EdgeInsets.only(bottom: 10.h),
+                child: titolo,
+              ),
+              Container(
+                constraints: BoxConstraints(maxWidth: 200.w),
+                margin: EdgeInsets.only(bottom: 50.h),
+                child: Text("Inclina il tuo telefono per muovere la pallina lungo il labirinto e raggiungi l'uscita!", style: TextStyle(fontSize: 15.w), textAlign: TextAlign.center),
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Difficoltà", style: TextStyle(fontSize: 15.w))),
+              ),
+              SwipeSelector(key: selectorKey),
+              Align(
+                alignment: Alignment.center,
+                child: Padding(padding: EdgeInsets.only(bottom: 10.h), child: Text("Impostazioni accelerometro:", style: TextStyle(fontSize: 15.w))),
+              ),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltX:  "),),
+                  Expanded(
+                    child: SliderTheme(
+                      data: temaSlider,
+                      child: Slider(
+                        value: tiltX,
+                        min: 10,
+                        max: 40,
+                        divisions: 30,
+                        label: tiltX.toStringAsFixed(0),
+                        onChanged: (v) => setState(() {tiltX = v;})
+                      )
                     )
                   )
-                )
-              ],
-            ),
+                ],
+              ),
 
-            Row(
-              children: [
-                Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltY:  ")),
-                Expanded(
-                    child: SliderTheme(
-                        data: temaSlider,
-                        child: Slider(
-                            value: tiltY,
-                            min: 10,
-                            max: 40,
-                            divisions: 30,
-                            label: tiltY.toStringAsFixed(0),
-                            onChanged: (v) => setState(() {tiltY = v;})
-                        )
-                    )
-                )
-              ],
-            ),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltY:  ")),
+                  Expanded(
+                      child: SliderTheme(
+                          data: temaSlider,
+                          child: Slider(
+                              value: tiltY,
+                              min: 10,
+                              max: 40,
+                              divisions: 30,
+                              label: tiltY.toStringAsFixed(0),
+                              onChanged: (v) => setState(() {tiltY = v;})
+                          )
+                      )
+                  )
+                ],
+              ),
 
-            Row(
-              children: [
-                Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltUp:")),
-                Expanded(
-                    child: SliderTheme(
-                        data: temaSlider,
-                        child: Slider(
-                            value: tiltUp,
-                            min: 10,
-                            max: 40,
-                            divisions: 30,
-                            label: tiltUp.toStringAsFixed(0),
-                            onChanged: (v) => setState(() {tiltUp = v;})
-                        )
-                    )
-                )
-              ],
-            ),
-            SizedBox(height: 40.h),
-            ElevatedButton(
-              onPressed: startGame,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.w),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 10.w), child: Text("TiltUp:")),
+                  Expanded(
+                      child: SliderTheme(
+                          data: temaSlider,
+                          child: Slider(
+                              value: tiltUp,
+                              min: 10,
+                              max: 40,
+                              divisions: 30,
+                              label: tiltUp.toStringAsFixed(0),
+                              onChanged: (v) => setState(() {tiltUp = v;})
+                          )
+                      )
+                  )
+                ],
+              ),
+              SizedBox(height: 40.h),
+              ElevatedButton(
+                onPressed: startGame,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.w),
+                  ),
+                  elevation: 6,
+                  shadowColor: Colors.black45,
                 ),
-                elevation: 6,
-                shadowColor: Colors.black45,
-              ),
-              child: Text(
-                "Inizia Partita",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            )
+                child: Text(
+                  "Inizia Partita",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              )
 
-          ],
-        )
-      ),
+            ],
+          )
+        ),
+      )
     );
   }
 }
